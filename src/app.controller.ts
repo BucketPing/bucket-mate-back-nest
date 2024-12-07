@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+@Controller('api')
+export class SearchController {
+  constructor(private readonly AppService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  //const response = await fetch('http://localhost:3000/api/search?searchTerm=아침');
+  @Get('search')
+  async search(@Query('searchTerm') searchTerm: string) {
+    return this.AppService.search(searchTerm);
   }
 }
