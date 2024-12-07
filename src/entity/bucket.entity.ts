@@ -39,6 +39,6 @@ export class Bucket {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @OneToMany(() => Participant, (participant) => participant.bucketId)
+  @OneToMany(() => Participant, (participant) => participant.bucket)
   participant: Participant[];
 }

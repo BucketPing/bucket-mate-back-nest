@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
+import { Bucket } from './entity/bucket.entity';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         logging: true,
       }),
     }),
+    TypeOrmModule.forFeature([Bucket]),
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

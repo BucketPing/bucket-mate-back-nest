@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Bucket } from './bucket.entity';
 
 @Entity('participants')
 export class Participant {
@@ -16,4 +23,8 @@ export class Participant {
 
   @Column()
   profile: string;
+
+  @ManyToOne(() => Bucket, (bucket) => bucket.participant)
+  @JoinColumn({ name: 'bucket_id' })
+  bucket: Bucket;
 }
