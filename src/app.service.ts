@@ -27,6 +27,21 @@ export class AppService {
     기타: ['기타', '그외', '다양', '기타활동'],
   };
 
+  private getCategoryCode(category: Category): number {
+    const categoryMap = {
+      운동: 1,
+      여행: 2,
+      학습: 3,
+      취미: 4,
+      음식: 5,
+      문화: 6,
+      봉사: 7,
+      기타: 8,
+    };
+
+    return categoryMap[category] || 8; // 기본값은 기타(8)
+  }
+
   constructor(
     @InjectRepository(Bucket)
     private bucketRepository: Repository<Bucket>,
@@ -54,9 +69,11 @@ export class AppService {
       )
       .map(([category]) => category as Category);
 
+    // participant로 수정 (participants -> participant)
     const query = this.bucketRepository
       .createQueryBuilder('bucket')
       .leftJoinAndSelect('bucket.participant', 'participant')
+      .leftJoinAndSelect('bucket.categories', 'bucket_category')
       .where(
         new Brackets((qb) => {
           qb.where('LOWER(bucket.title) LIKE :search', {
@@ -71,8 +88,8 @@ export class AppService {
       query.orWhere(
         new Brackets((qb) => {
           matchedCategories.forEach((category, index) => {
-            qb.orWhere(`bucket.categories LIKE :category${index}`, {
-              [`category${index}`]: `%${category}%`,
+            qb.orWhere('bucket_category.categoryCode = :categoryCode' + index, {
+              ['categoryCode' + index]: this.getCategoryCode(category),
             });
           });
         }),
@@ -94,17 +111,25 @@ export class AppService {
     const skip = Number(offset) || 0;
 
     try {
-      const [buckets, totalCount] = await this.bucketRepository.findAndCount({
-        take,
-        skip,
-        order: {
-          createdAt: 'DESC',
-        },
-        relations: ['participant'],
-      });
+      const [buckets, totalCount] = await this.bucketRepository
+        .createQueryBuilder('bucket')
+        .leftJoinAndSelect('bucket.participant', 'participant')
+        .leftJoinAndSelect('bucket.categories', 'bucket_category')
+        .orderBy('bucket.createdAt', 'DESC')
+        .take(take)
+        .skip(skip)
+        .getManyAndCount();
+
+      // Entity의 getCategoryName 메소드를 사용
+      const bucketsWithCategories = buckets.map((bucket) => ({
+        ...bucket,
+        categoryNames: bucket.categories.map((category) =>
+          category.getCategoryName(),
+        ),
+      }));
 
       return {
-        buckets,
+        buckets: bucketsWithCategories,
         totalCount,
       };
     } catch (error) {
@@ -114,16 +139,28 @@ export class AppService {
 
   async getBucketListById(bucketId: number) {
     try {
-      const bucket = await this.bucketRepository.findOne({
-        where: { id: bucketId },
-        relations: ['participant'], // participant 정보도 함께 가져옵니다
-      });
+      const bucket = await this.bucketRepository
+        .createQueryBuilder('bucket')
+        .leftJoinAndSelect('bucket.participant', 'participant')
+        .leftJoinAndSelect('bucket.categories', 'bucket_category')
+        // 필요한 경우 participant의 user 정보도 가져올 수 있습니다
+        // .leftJoinAndSelect('participant.user', 'user')
+        .where('bucket.bucketId = :bucketId', { bucketId })
+        .getOne();
 
       if (!bucket) {
         throw new NotFoundException(`Bucket with ID ${bucketId} not found`);
       }
 
-      return bucket;
+      // 카테고리 정보를 가공하여 반환
+      const bucketWithCategories = {
+        ...bucket,
+        categoryNames: bucket.categories.map((category) =>
+          category.getCategoryName(),
+        ),
+      };
+
+      return bucketWithCategories;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

@@ -21,7 +21,7 @@ import { Bucket } from './entity/bucket.entity';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: false,
         timezone: '+09:00',
         logging: true,
       }),

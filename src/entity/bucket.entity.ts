@@ -6,17 +6,15 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Participant } from './participant.entity';
+import { BucketCategory } from './bucket-category.entity';
 
-@Entity('buckets')
+@Entity('bucket')
 export class Bucket {
   @PrimaryGeneratedColumn()
-  id: number;
+  bucketId: number; // DB 스키마와 일치하도록 id -> bucketId
 
-  @Column({ name: 'owner_id' })
+  @Column()
   ownerId: number;
-
-  @Column('simple-array')
-  categories: string[];
 
   @Column()
   title: string;
@@ -24,21 +22,24 @@ export class Bucket {
   @Column('text')
   description: string;
 
-  @Column({ name: 'max_capacity' })
+  @Column()
   maxCapacity: number;
 
-  @Column({ name: 'progress_status' })
+  @Column()
   progressStatus: number;
 
-  @Column({ name: 'start_date' })
+  @Column()
   startDate: string;
 
-  @Column({ name: 'end_date' })
+  @Column()
   endDate: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn()
   createdAt: Date;
 
   @OneToMany(() => Participant, (participant) => participant.bucket)
   participant: Participant[];
+
+  @OneToMany(() => BucketCategory, (category) => category.bucket)
+  categories: BucketCategory[];
 }

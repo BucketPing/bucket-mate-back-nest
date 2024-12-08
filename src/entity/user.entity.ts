@@ -1,12 +1,13 @@
-// src/entities/user.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { UserBookmark } from './user-bookmark.entity';
 
-@Entity('users')
+@Entity('user')
 export class User {
   @PrimaryGeneratedColumn()
   userId: number;
@@ -14,12 +15,15 @@ export class User {
   @Column()
   nickname: string;
 
-  @Column()
+  @Column({ nullable: true })
   profile: string;
 
   @Column({ unique: true })
   email: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
+
+  @OneToMany(() => UserBookmark, (bookmark) => bookmark.user)
+  bookmarks: UserBookmark[];
 }

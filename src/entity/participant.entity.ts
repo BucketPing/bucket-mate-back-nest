@@ -1,30 +1,31 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
+  Column,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { Bucket } from './bucket.entity';
+import { User } from './user.entity';
 
-@Entity('participants')
+@Entity('bucket_participant')
 export class Participant {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id' })
-  userId: number;
-
-  @Column({ name: 'bucket_id' })
+  @Column()
   bucketId: number;
 
   @Column()
-  nickname: string;
+  participantId: number;
 
-  @Column()
-  profile: string;
-
-  @ManyToOne(() => Bucket, (bucket) => bucket.participant)
-  @JoinColumn({ name: 'bucket_id' })
+  @ManyToOne(() => Bucket, (bucket) => bucket.participant, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'bucketId' })
   bucket: Bucket;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'participantId' })
+  user: User;
 }
