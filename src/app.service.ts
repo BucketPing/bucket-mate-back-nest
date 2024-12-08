@@ -88,4 +88,31 @@ export class AppService {
       matchedCategories,
     };
   }
+
+  async getBucketList(limit: number = 5, offset: number = 0) {
+    const take = Number(limit) || 5;
+    const skip = Number(offset) || 0;
+
+    try {
+      const [buckets, totalCount] = await this.bucketRepository.findAndCount({
+        take,
+        skip,
+        order: {
+          createdAt: 'DESC',
+        },
+        relations: ['participant'],
+      });
+
+      return {
+        buckets,
+        totalCount,
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch bucket list: ${error.message}`);
+    }
+  }
+
+  async getBucketLisById(bucketId: number) {
+    return bucketId;
+  }
 }
