@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Category } from './types';
 import { Bucket } from './entity/bucket.entity';
 import { Repository, Brackets } from 'typeorm';
@@ -112,7 +112,23 @@ export class AppService {
     }
   }
 
-  async getBucketLisById(bucketId: number) {
-    return bucketId;
+  async getBucketListById(bucketId: number) {
+    try {
+      const bucket = await this.bucketRepository.findOne({
+        where: { id: bucketId },
+        relations: ['participant'], // participant 정보도 함께 가져옵니다
+      });
+
+      if (!bucket) {
+        throw new NotFoundException(`Bucket with ID ${bucketId} not found`);
+      }
+
+      return bucket;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error(`Failed to fetch bucket details: ${error.message}`);
+    }
   }
 }

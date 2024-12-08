@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller('api')
@@ -19,7 +19,7 @@ export class AppController {
   }
 
   @Get('bucket-list/:bucketId')
-  getBucketListById(@Param('bucketId') bucketId: number) {
-    return this.appService.getBucketLisById(bucketId);
+  async getBucketListById(@Param('bucketId', ParseIntPipe) bucketId: number) {
+    return this.appService.getBucketListById(bucketId);
   }
 }
