@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Bucket } from './bucket.entity';
 
-@Entity('bucket_category')
+@Entity('Bucket_category')
 export class BucketCategory {
   @PrimaryGeneratedColumn()
   categoryId: number;

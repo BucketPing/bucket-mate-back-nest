@@ -8,7 +8,7 @@ import {
 import { Participant } from './participant.entity';
 import { BucketCategory } from './bucket-category.entity';
 
-@Entity('bucket')
+@Entity('Bucket')
 export class Bucket {
   @PrimaryGeneratedColumn()
   bucketId: number; // DB 스키마와 일치하도록 id -> bucketId
