@@ -8,7 +8,7 @@ import {
 import { Bucket } from './bucket.entity';
 import { User } from './user.entity';
 
-@Entity('Bucket_participant')
+@Entity('Bucket_Participant ')
 export class Participant {
   @PrimaryGeneratedColumn()
   id: number;
