@@ -226,4 +226,40 @@ export class AppService {
       relations: ['categories'],
     });
   }
+
+  async getMyPage(userId: number) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { userId },
+        select: {
+          userId: true,
+          nickname: true,
+          email: true,
+          profile: true,
+          createdAt: true,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
+      return {
+        success: true,
+        data: {
+          userId: user.userId,
+          nickname: user.nickname,
+          email: user.email,
+          profile: user.profile,
+          createdAt: user.createdAt,
+        },
+        message: 'User information retrieved successfully',
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error(`Failed to fetch user information: ${error.message}`);
+    }
+  }
 }

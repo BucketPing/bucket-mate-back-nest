@@ -20,6 +20,11 @@ export class AppController {
     return this.appService.search(searchTerm);
   }
 
+  @Get('mypage/:userId')
+  async getMyPage(@Param('userId') userId: number) {
+    return await this.appService.getMyPage(userId);
+  }
+
   @Get('/bucket-list')
   getBucketList(
     @Query('limit') limit: number,
