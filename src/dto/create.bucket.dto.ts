@@ -10,7 +10,7 @@ export interface CreateBucketDto {
     | '봉사'
     | '기타';
   title: string;
-  content: string;
+  description: string;
   maxCapacity: number;
   startDate: string;
   endDate: string;

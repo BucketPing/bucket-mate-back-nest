@@ -201,7 +201,7 @@ export class AppService {
     const bucket = this.bucketRepository.create({
       ownerId: user.userId,
       title: createBucketDto.title,
-      description: createBucketDto.content,
+      description: createBucketDto.description,
       maxCapacity: createBucketDto.maxCapacity,
       progressStatus: 0,
       startDate: createBucketDto.startDate,

@@ -4,6 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { Bucket } from './entity/bucket.entity';
+import { BucketCategory } from './entity/bucket-category.entity';
+import { User } from './entity/user.entity';
+import { Participant } from './entity/participant.entity';
+import { UserBookmark } from './entity/user-bookmark.entity';
 
 @Module({
   imports: [
@@ -26,7 +30,13 @@ import { Bucket } from './entity/bucket.entity';
         logging: true,
       }),
     }),
-    TypeOrmModule.forFeature([Bucket]),
+    TypeOrmModule.forFeature([
+      Bucket,
+      BucketCategory,
+      User,
+      Participant,
+      UserBookmark,
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],

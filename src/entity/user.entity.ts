@@ -21,7 +21,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn()
   createdAt: Date;
 
   @OneToMany(() => UserBookmark, (bookmark) => bookmark.user)
