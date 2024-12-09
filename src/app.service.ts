@@ -1,8 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Category } from './types';
 import { Bucket } from './entity/bucket.entity';
 import { Repository, Brackets } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BucketCategory } from './entity/bucket-category.entity';
+import { User } from './entity/user.entity';
+import { CreateBucketDto } from './dto/create.bucket.dto';
 
 @Injectable()
 export class AppService {
@@ -45,6 +52,10 @@ export class AppService {
   constructor(
     @InjectRepository(Bucket)
     private bucketRepository: Repository<Bucket>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(BucketCategory)
+    private bucketCategoryRepository: Repository<BucketCategory>,
   ) {}
 
   async search(searchTerm?: string) {
@@ -167,5 +178,52 @@ export class AppService {
       }
       throw new Error(`Failed to fetch bucket details: ${error.message}`);
     }
+  }
+
+  async createBucket(createBucketDto: CreateBucketDto): Promise<Bucket> {
+    const user = await this.userRepository.findOne({
+      where: { userId: createBucketDto.userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Validate dates
+    const startDate = new Date(createBucketDto.startDate);
+    const endDate = new Date(createBucketDto.endDate);
+
+    if (endDate < startDate) {
+      throw new BadRequestException('End date must be after start date');
+    }
+
+    // Create new bucket
+    const bucket = this.bucketRepository.create({
+      ownerId: user.userId,
+      title: createBucketDto.title,
+      description: createBucketDto.content,
+      maxCapacity: createBucketDto.maxCapacity,
+      progressStatus: 0,
+      startDate: createBucketDto.startDate,
+      endDate: createBucketDto.endDate,
+    });
+
+    // Save bucket first
+    const savedBucket = await this.bucketRepository.save(bucket);
+
+    // Create bucket category with category code
+    const bucketCategory = new BucketCategory();
+    bucketCategory.bucketId = savedBucket.bucketId;
+    bucketCategory.categoryCode = this.getCategoryCode(
+      createBucketDto.category,
+    );
+
+    await this.bucketCategoryRepository.save(bucketCategory);
+
+    // Return saved bucket with category
+    return this.bucketRepository.findOne({
+      where: { bucketId: savedBucket.bucketId },
+      relations: ['categories'],
+    });
   }
 }
